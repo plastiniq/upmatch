@@ -1,0 +1,66 @@
+/* @import url('https://fonts.googleapis.com/css?family=Lato:400,700&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css?family=M+PLUS+1p:400,700&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css?family=Cantarell:400,700&display=swap'); */
+@import url('https://fonts.googleapis.com/css?family=Red+Hat+Text:400,500,700&display=swap');
+/* @import url('https://fonts.googleapis.com/css?family=Red+Hat+Display:400,700&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css?family=Krub:400,700&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css?family=Patrick+Hand+SC&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css?family=Palanquin:400,700&display=swap'); */
+
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  /* font-family: 'Lato', sans-serif; */
+  /* font-family: 'M PLUS 1p', sans-serif; */
+  /* font-family: 'Cantarell', sans-serif; */
+  font-family: 'Red Hat Text', sans-serif;
+  /* font-family: 'Red Hat Display', sans-serif; */
+  /* font-family: 'Krub', sans-serif; */
+  /* font-family: 'Patrick Hand SC', cursive; */
+  /* font-family: 'Palanquin', sans-serif; */
+
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #71636C;
+  padding: 40px;
+  display: flex;
+  box-sizing: border-box;
+  font-size: 21px;
+}
+
+#sapper {
+	flex-grow: 1;
+	height: 100%;
+}
+
+a[target="_blank"] {
+  display: inline-block;
+}
+
+a[target="_blank"]:after {
+  content: "";
+  display: inline-block;
+  width: 0.65em;
+  height: 0.65em;
+  margin-left: 0.4em;
+  background: url('/blank-target.svg') no-repeat left bottom;
+  background-size: contain;
+}
+
+a {
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+
