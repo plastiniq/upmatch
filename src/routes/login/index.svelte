@@ -14,6 +14,7 @@
 				'Content-Type': 'application/json'
 			}
 		}).then(resp => resp.json()).then(resp => {
+			console.log('login', resp)
 			location.replace(resp.url)
 		}).catch((e) => {
 			urlLoading = false
