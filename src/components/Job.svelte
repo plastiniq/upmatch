@@ -1,5 +1,4 @@
 <script>
-  import * as JobsAPI from './api/jobs.js'
 	import Comparator from './comparison/comparator.js'
 	import castConfig from './comparison/config.js'
 	import castHandler from './comparison/handler.js'

@@ -1,5 +1,4 @@
 <script context="module">
-	import * as UserAPI from '../components/api/user.js'
 	import { profile } from '../stores.js'
 
 	export async function preload(page, session) {

@@ -1,5 +1,4 @@
 <script context="module">
-  import * as AuthAPI from '../../../components/api/auth.js'
   import * as sapper from '@sapper/app';
 
 	export async function preload({ params, query }) {

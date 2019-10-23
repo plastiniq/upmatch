@@ -8,7 +8,7 @@
 	import { tick } from 'svelte'
 
 	let jobKey
-	let query = 'xxx'
+	let query = ''
 	let searchInput
 	let mounted = false
 

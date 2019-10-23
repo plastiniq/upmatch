@@ -1,13 +1,21 @@
 <script>
-	import * as AuthAPI from '../../components/api/auth.js'
-
 	let urlLoading = false
 
 	let loginHandler = function() {
 		urlLoading = true
-		AuthAPI.getAuthLink().then(resp => {
-			location.replace(resp.data.url)
-		}).catch(() => {
+
+		let body = JSON.stringify({url: `${window.location.origin}/login/complete`})
+		fetch(`/api/login`, { 
+			method: 'POST', 
+			body, 
+			credentials: 'include', 
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			}
+		}).then(resp => resp.json()).then(resp => {
+			location.replace(resp.url)
+		}).catch((e) => {
 			urlLoading = false
 		})
 	}
