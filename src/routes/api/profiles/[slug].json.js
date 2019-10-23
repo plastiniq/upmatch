@@ -11,6 +11,10 @@ export async function get (req, res) {
 }
 
 function getProfiles (req, profilesArr, excludeArr) {
+  if (!profilesArr || !profilesArr.length) {
+    return Promise.reject({ status: 400, message: 'No valid profile keys in the request'})
+  }
+
   excludeArr = excludeArr || []
   let keys = profilesArr.filter(v => excludeArr.indexOf(v) === -1).slice(0, 10).join(';')
   return req.oauth.fetch('GET', `/api/profiles/v1/providers/${keys}/brief.json`, null, req.session.accessToken, req.session.accessTokenSecret).then(resp => {

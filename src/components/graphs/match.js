@@ -4,14 +4,14 @@ import * as d3Scale from 'd3-scale'
 import * as d3Transition from 'd3-transition'
 import * as d3Ease from 'd3-ease'
 
-export default function update (svgNode, comparator, profile, width, height) {
+export default function update (svgNode, comparator, profile, width, height, bottom) {
   const d3 = Object.assign({}, d3Shape, d3Selection, d3Scale, d3Transition, d3Ease)
   var bottomOffset = -5
   var graphData = []
   var freelancerData = []
   var maxOutput = 0
   var maxY = 0
-  const svg = d3.select(svgNode).attr('width', width).attr('height', height)
+  const svg = d3.select(svgNode).attr('viewBox', `0 0 ${width} ${height}`)
 
   if (comparator && profile) {
     maxOutput = comparator.maxOutput
@@ -26,8 +26,6 @@ export default function update (svgNode, comparator, profile, width, height) {
     ))
 
     maxY = Math.max(...freelancerData.map(v => v.y), maxOutput)
-
-    console.log(graphData, freelancerData, 'maxY', maxY, 'freelancerData', freelancerData)
   }
 
   const ease = d3.transition()
@@ -40,7 +38,7 @@ export default function update (svgNode, comparator, profile, width, height) {
 
   var yScale = d3.scaleLinear()
     .domain([0, maxY])
-    .range([height, 0])
+    .range([height - bottom, 0])
 
   var zeroLine = d3.line()
     .x(function(d, i) { return xScale(i) })
@@ -51,7 +49,6 @@ export default function update (svgNode, comparator, profile, width, height) {
     .x(function(d, i) { return xScale(i) })
     .y(function(d) { return yScale(d.y * 1.4) }) 
     .curve(d3.curveBasis)
-
 
   var pathBottom = (offset) => {
     return `M ${xScale(0)} ${yScale(0)}
@@ -81,7 +78,7 @@ export default function update (svgNode, comparator, profile, width, height) {
     )
 
   svg.selectAll('.axis-text').data(graphData).join(
-    enter => enter.append('text').call(selection => selection.attr('class', 'axis-text').attr('text-anchor', 'middle').attr('dy', 30).append('textPath').attr('xlink:href', '#textpath').attr('startOffset', (d, i) => `${ (i + 0.5) / graphData.length * 100 }%` ).text(d => d.key)).call(selection => selection.attr('fill-opacity', 0).transition().duration(500).delay((d, i) => i * 200).attr('fill-opacity', 1)),
+    enter => enter.append('text').call(selection => selection.attr('class', 'axis-text').attr('text-anchor', 'middle').attr('dy', bottom).append('textPath').attr('xlink:href', '#textpath').attr('startOffset', (d, i) => `${ (i + 0.5) / graphData.length * 100 }%` ).text(d => d.key)).call(selection => selection.attr('fill-opacity', 0).transition().duration(500).delay((d, i) => i * 200).attr('fill-opacity', 1)),
     update => update,
     exit => exit.remove()
   )

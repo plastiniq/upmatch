@@ -5,20 +5,19 @@
 	import castHandler from './comparison/handler.js'
 	import { stores } from '@sapper/app'
 	import { profile } from '../stores.js'
-	// import updateGraph from './components/graphs/match.js'
+	import updateGraph from './graphs/match.js'
 	import { tweened } from 'svelte/motion';
-
-	function updateGraph() {
-	}
 
 	export let key
 
 	let matchValue = tweened(0, {
 		duration: 800
 	})
+
 	let svg
 	let graphWidth = 380
-	let graphHeight = 160
+	let graphHeight = 200
+	let graphBottom = 30
 	let loadingCounter = 0
 	let loadingTimeoutID
 	let loaded = false
@@ -55,7 +54,7 @@
 				comparator.train(castHandler(v))
 			})
 			$matchValue = comparator.intersection(myProfile)
-			updateGraph(svg, comparator, myProfile, graphWidth, graphHeight)
+			updateGraph(svg, comparator, myProfile, graphWidth, graphHeight, graphBottom)
 		} 
 
 		finishLoading()
@@ -64,7 +63,7 @@
 	function startLoading () {
 		loaded = false
 		loadingCounter = 0
-		updateGraph(svg, null, null, graphWidth, graphHeight)
+		updateGraph(svg, null, null, graphWidth, graphHeight, graphBottom)
 		loadingTick()
 	}
 
@@ -86,7 +85,7 @@
 </script>
 
 <div class="job-grid" class:job-info-available={jobTitle} class:job-value-available={loaded}>
-	<div class="grid-cell">
+	<div class="grid-cell" style="padding-bottom: {graphBottom}px;">
 		<div class="acquired-info">
 			<h3>{jobTitle}</h3>
 			<a href={`https://www.upwork.com/ab/proposals/job/${key}/apply`} target="_blank">Apply Job</a>
@@ -95,18 +94,21 @@
 	<div class="grid-cell">
 		<div class="job-graph" class:loaded>
 			<div class="match-value">
+				<div class="label">Intersection</div>
 				<div class="value">{matchPrc}</div>
 				<div class="loading-text"></div>
 			</div>
-			<svg class="match-graph" bind:this={svg} width={graphWidth} height={graphHeight}>
-			<g class="loading">
-				<line class="loading-track" x1="0" y1="100%" x2="100%" y2="100%" />
-				<line class="loading-progress" x1="0" y1="100%" x2="100%" y2="100%" stroke-dasharray={`${loadingProgress * graphWidth} ${graphWidth}`} />
-			</g>
-			</svg>
+			<div class="match-graph-wrapper" style="width: 100%; max-width: {graphWidth}px; padding-top: {graphHeight / graphWidth * 100}%;">
+				<svg class="match-graph" bind:this={svg}>
+				<g class="loading">
+					<line class="loading-track" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} />
+					<line class="loading-progress" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} stroke-dasharray={`${loadingProgress * graphWidth} ${graphWidth}`} />
+				</g>
+				</svg>
+			</div>
 		</div>
 	</div>
-	<div class="grid-cell">
+	<div class="grid-cell" style="padding-bottom: {graphBottom}px;">
 		<div class="legend">
 			<div class="my">My Profile</div>
 			<div class="customer">Customer Preferences</div>
@@ -125,7 +127,6 @@
 	display: flex;
 	flex-grow: 1;
 	max-width: 1300px;
-	flex-wrap: wrap;
 }
 
 .job-grid.job-info-available .acquired-info {
@@ -135,27 +136,16 @@
 
 .job-grid.job-value-available .legend {
 	opacity: 1;
-	transform: translateY(0);
+	transform: translateY(0.2em);
 }
 
 .job-grid.job-value-available .match-value {
 	transform: translateY(0);
-}
-
-.job-grid.job-value-available .match-value .value {
 	opacity: 1;
-}
-
-.job-grid.job-value-available .match-value:before {
-	opacity: 1;
-}
-
-.job-grid.job-value-available .match-value .loading-text {
-	opacity: 0;
 }
 
 .acquired-info {
-	padding: 21px 25px;
+	padding: 1em 1.19em;
 	border: 2px solid #76CD8B;
 	border-radius: 24px;
 	max-width: 300px;
@@ -172,7 +162,7 @@
 	font-size: inherit;
 	opacity: 0.5;
 	font-weight: inherit;
-	margin-bottom: 15px;
+	margin-bottom: 0.714em;
 }
 
 .acquired-info a {
@@ -186,6 +176,7 @@
 	align-items: flex-end;
 	flex-basis: 0;
 	padding: 0 2.5vw;
+	flex-grow: 1;
 }
 
 .grid-cell:first-child, .grid-cell:last-child {
@@ -206,10 +197,10 @@
 	align-items: center;
 	position: relative;
 	padding-bottom: 5px;
+	width: 100%;
 }
 
 .legend {
-	font-size: 21px;
 	opacity: 0;
 	transform: var(--appear-translate);
 	transition-property: transform, opacity;
@@ -248,22 +239,21 @@
 }
 
 .match-value {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
 	position: relative;
-	margin-bottom: 30px;
+	margin-bottom: 1.4285em;
 	transform: translateY(80px);
-	transition-property: transform;
+	transition-property: transform, opacity;
 	transition-duration: var(--appear-duration);
-}
-
-.match-value > * {
-	transition-property: opacity;
-	transition-duration: 0.3s;
+	opacity: 0;
 }
 
 .match-value .value {
 	font-size: 48px;
 	font-weight: 700;
-	opacity: 0;
 }
 
 .match-value .loading-text {
@@ -274,20 +264,23 @@
 	opacity: 0.5;
 }
 
-.match-value:before {
-	content: "Intersection";
-	display: block;
-	position: absolute;
-	bottom: 100%;
-	left: 50%;
-	transform: translateX(-50%);
+.match-value .label {
 	font-size: 14px;
 	font-weight: 400;
-	opacity: 0;
+}
+
+.match-graph-wrapper {
+	position: relative;
 }
 
 .match-graph {
-  overflow: visible;
+	overflow: visible;
+	max-width: 100%;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
 }
 
 .match-graph .loading {
@@ -324,5 +317,30 @@
   font-size: 14px;
   font-family: inherit;
   fill: #71636C;
+}
+
+@media (max-width: 800px) {
+	.job-grid {
+		flex-direction: column;
+		height: 100%;
+		align-items: stretch;
+		justify-content: space-between;
+	}
+
+	.grid-cell {
+		flex-shrink: 0;
+		flex-grow: 0 !important;
+		flex-basis: auto;
+		align-items: initial;
+		padding: 0;
+		justify-content: stretch !important;
+		padding-bottom: 0 !important;
+	}
+
+
+	.acquired-info {
+		max-width: none;
+		width: 100%;
+	}
 }
 </style>

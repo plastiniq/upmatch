@@ -52,7 +52,7 @@ export default class {
     } else {
       var value = parseFloat(xValue)
       var maxGroup = this.findMaxGroup(value)
-      return this.intersect(value, maxGroup.x) * this.maxY
+      return this.intersect(value, maxGroup.x) * maxGroup.y
     }
   }
 

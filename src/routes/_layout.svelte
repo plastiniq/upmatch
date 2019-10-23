@@ -15,7 +15,7 @@
 				profile.set(profileJSON.profile)
 			} else {
 				profile.set(null)
-				// this.redirect(302, '/login')
+				this.redirect(302, '/login')
 			}
 		}
 	}

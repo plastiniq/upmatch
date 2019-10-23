@@ -3,26 +3,33 @@
 import { tick } from 'svelte';
 import { setParentSelection, getParentSelection } from './helpers/text.js';
 import { createEventDispatcher } from 'svelte';
-import { onMount } from 'svelte';
+
+export let value = '';
 
 const dispatch = createEventDispatcher();
 let jobKey
 let jobInput
 let textContent
 
-async function handleInput(event) {
-  textContent = this.textContent
-  const selection = getParentSelection(this)
+$: if ((value != textContent) && jobInput) {
+  jobInput.innerHTML = value
+  handleInput(null, jobInput)
+}
+
+async function handleInput(event, input) {
+  input = input || this
+  value = textContent = input.textContent
+  const selection = getParentSelection(input)
 
   const matched = textContent.match(/[\^~][^/$]+/)
   jobKey = matched && matched[0]
 
   if (jobKey) {
-    this.innerHTML = textContent.replace(/(^[^~]*)(~[^/$]+)(.*)/, '$1<span class="hl">$2</span>$3')
+    input.innerHTML = textContent.replace(/(^[^~]*)(~[^/$]+)(.*)/, '$1<span class="hl">$2</span>$3')
   } else {
-    this.innerHTML = textContent
+    input.innerHTML = textContent
   }
-  setParentSelection(this, selection)
+  setParentSelection(input, selection)
 }
 
 function selectAll () {
@@ -50,7 +57,7 @@ $: {
     on:dblclick|preventDefault
   >
   </div>
-  <svg class="check" width="19" height="15" class:on={ jobKey }>
+  <svg class="check" class:on={jobKey} viewBox="0 0 19 15">
     <path d="M 0 7.61 L 6.95 15 L 24.59 -6.89" />
   </svg>
 </div>
@@ -59,7 +66,6 @@ $: {
 
   .search-input {
     position: relative;
-    font-size: 21px;
   }
 
   .placeholder {
@@ -72,10 +78,6 @@ $: {
     text-overflow: ellipsis;
   }
 
-  .placeholder, #job-input {
-    padding: 20px 25px 22px 25px;
-  }
-
   .search-input :global(.hl) {
     color: #76CD8B;
     font-weight: 700;
@@ -84,8 +86,12 @@ $: {
   .check {
     overflow: visible;
     position: absolute;
-    right: 26px;
-    top: 26px;
+    right: 1.238em;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.90em;
+    height: 0.71em;
+    pointer-events: none;
   }
 
   .check path {
@@ -103,21 +109,26 @@ $: {
     stroke-dashoffset: 0;
   }
 
+  .placeholder, #job-input {
+    border-style: solid;
+    border-top-width: 0.95em;
+    border-right-width: 3.33em;
+    border-bottom-width: 1.047em;
+    border-left-width: 1.19em;
+    border-color: transparent;
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
   #job-input {
     position: relative;
     border-radius: 7px;
     -webkit-appearance: none;
     appearance: none;
     font-family : inherit;
-    box-sizing: border-box;
-    background-color: #FFF;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.07);
     transition: box-shadow 0.2s;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-    /* margin-right: 70px; */
     background-color: #fff;
   }
 
