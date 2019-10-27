@@ -45,9 +45,9 @@
 					{initials}
 				{/if}
 			</div>
-			<svg class="arrow" width="8px" height="7px">
+			<!-- <svg class="arrow" width="8px" height="7px">
 					<polygon points="0 0 8 0 4 7"></polygon>
-			</svg>
+			</svg> -->
 		</div>
 	</header>
 

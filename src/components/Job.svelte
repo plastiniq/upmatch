@@ -6,6 +6,7 @@
 	import { profile } from '../stores.js'
 	import updateGraph from './graphs/match.js'
 	import { tweened } from 'svelte/motion';
+	import { onMount } from 'svelte'
 
 	export let key
 
@@ -13,6 +14,7 @@
 		duration: 800
 	})
 
+	let mounted
 	let svg
 	let graphWidth = 380
 	let graphHeight = 200
@@ -21,6 +23,13 @@
 	let loadingTimeoutID
 	let loaded = false
 	let job = null
+	let profilesError = ''
+	let jobError = ''
+
+	onMount(() => {
+		mounted = true
+	})
+
 
 	$:myProfile = castHandler($profile)
 
@@ -28,41 +37,72 @@
 
 	$:loadingProgress = Math.atan(Math.atan(loadingCounter))
 
-	$:jobTitle = job && job.profile && job.profile.op_title
+	$:jobTitle = job && job.op_title
 
-	$: if (myProfile && svg && key) {
+	$:candidates = job && parseInt(job.op_tot_cand)
+	$:interviews = job && parseInt(job.op_tot_intv)
+
+	$: if (myProfile && mounted) {
 		key
 		compute()
 	}
 
-	async function compute () {
-		startLoading()
+	function compute () {
 		$matchValue = 0
+		loadingCounter = 0
+		jobError = ''
+		profilesError = ''
 		job = null
-		const jobRes = await fetch(`/api/job/${key}.json`, { credentials: 'include' })
+		loaded = false
+		updateGraph(svg, null, null, graphWidth, graphHeight, graphBottom)
+		
+		if (!key) {
+			return
+		}
 
-		if (jobRes.ok) {
-			job = await jobRes.json()
-			console.log(job)
-			let profileKeys = getAssignments(job)
-			const profilesRes = await fetch(`/api/profiles/${profileKeys.join(';')}.json`, { credentials: 'include' })
-			const profilesJSON = await profilesRes.json()
-
+		startLoading()
+		fetch(`/api/job/${key}.json`, { credentials: 'include' }).then(resp => {
+			if (resp.ok) {
+				return resp.json()
+			}
+			return Promise.reject(resp)
+		})
+		.catch(error => {
+			jobError = error.statusText
+		})
+		.then(resp => {
+			console.log(resp)
+			job = resp.profile
+			let profileKeys = getAssignments(resp)
+			return fetch(`/api/profiles/${profileKeys.join(';')}.json`, { credentials: 'include' })
+		})
+		.then(resp => {
+			if (resp.ok) {
+				return resp.json()
+			}
+			return Promise.reject(resp)
+		})
+		.then(json => {
 			let comparator = new Comparator(castConfig)
-			profilesJSON.profiles.forEach(v => {
+			json.profiles.forEach(v => {
 				comparator.train(castHandler(v))
 			})
 			$matchValue = comparator.intersection(myProfile)
 			updateGraph(svg, comparator, myProfile, graphWidth, graphHeight, graphBottom)
-		} 
-
-		finishLoading()
+			finishLoading()
+		})
+		.catch(error => {
+			if (error.status === 404) {
+				profilesError = 'The client does not have active profiles in the hiring history for analysis.'
+			} else {
+				profilesError = error.statusText
+			}
+		})
 	}
 
 	function startLoading () {
 		loaded = false
 		loadingCounter = 0
-		updateGraph(svg, null, null, graphWidth, graphHeight, graphBottom)
 		loadingTick()
 	}
 
@@ -83,29 +123,40 @@
 	}
 </script>
 
-<div class="job-grid" class:job-info-available={jobTitle} class:job-value-available={loaded}>
+{#if jobError}
+	<div>{jobError}</div>
+{:else}
+<div class="job-grid" class:job-info-available={job && jobTitle} class:job-value-available={loaded}>
 	<div class="grid-cell" style="padding-bottom: {graphBottom}px;">
 		<div class="acquired-info">
 			<h3>{jobTitle}</h3>
+			<div class="candidates">
+				<div class="total-candidates" class:zero={!candidates}>{candidates} {candidates === 1 ? 'candidate' : 'candidates'}</div>
+				<div class="interviewed-candidates" class:zero={!interviews}>{interviews} {interviews === 1 ? 'interview' : 'interviews'}</div>
+			</div>
 			<a href={`https://www.upwork.com/ab/proposals/job/${key}/apply`} target="_blank">Apply Job</a>
 		</div>
 	</div>
 	<div class="grid-cell">
-		<div class="job-graph" class:loaded>
-			<div class="match-value">
-				<div class="label">Intersection</div>
-				<div class="value">{matchPrc}</div>
-				<div class="loading-text"></div>
+		{#if profilesError}
+			<div class="profiles-error" style="margin-bottom: {graphBottom}px">{profilesError}</div>
+		{:else}
+			<div class="job-graph" class:loaded>
+				<div class="match-value">
+					<div class="label">Intersection</div>
+					<div class="value">{matchPrc}</div>
+					<div class="loading-text"></div>
+				</div>
+				<div class="match-graph-wrapper" style="width: 100%; max-width: {graphWidth}px; padding-top: {graphHeight / graphWidth * 100}%;">
+					<svg class="match-graph" bind:this={svg}>
+					<g class="loading">
+						<line class="loading-track" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} />
+						<line class="loading-progress" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} stroke-dasharray={`${loadingProgress * graphWidth} ${graphWidth}`} />
+					</g>
+					</svg>
+				</div>
 			</div>
-			<div class="match-graph-wrapper" style="width: 100%; max-width: {graphWidth}px; padding-top: {graphHeight / graphWidth * 100}%;">
-				<svg class="match-graph" bind:this={svg}>
-				<g class="loading">
-					<line class="loading-track" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} />
-					<line class="loading-progress" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} stroke-dasharray={`${loadingProgress * graphWidth} ${graphWidth}`} />
-				</g>
-				</svg>
-			</div>
-		</div>
+		{/if}
 	</div>
 	<div class="grid-cell" style="padding-bottom: {graphBottom}px;">
 		<div class="legend">
@@ -114,7 +165,7 @@
 		</div>
 	</div>
 </div>
-
+{/if}
 
 <style>
 :root {
@@ -144,9 +195,6 @@
 }
 
 .acquired-info {
-	padding: 1em 1.19em;
-	border: 2px solid #76CD8B;
-	border-radius: 24px;
 	max-width: 300px;
 	box-sizing: border-box;
 	opacity: 0;
@@ -161,12 +209,59 @@
 	font-size: inherit;
 	opacity: 0.5;
 	font-weight: inherit;
-	margin-bottom: 0.714em;
+	margin-bottom: 3.5rem;
+}
+
+.candidates {
+	font-size: 1.4rem;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	margin-bottom: 3.5rem;
+}
+
+.candidates > * {
+	border-radius: 100px;
+	padding: 0.3rem 1.1rem;
+	font-weight: 700;
+	color: #fff;
+	box-sizing: border-box;
+}
+
+.candidates > :not(:last-child) {
+	margin-bottom: 0.8rem;
+}
+
+.candidates .total-candidates {
+	background-color: #76CD8B;
+}
+
+.candidates .interviewed-candidates {
+	background-color: #FF95A4;
+}
+.candidates .zero {
+	background-color: transparent !important;
+	/* box-shadow: inset 0 0 0 1px #E8E8E8; */
+	border: 2px solid #EBEBEB;
+}
+
+.total-candidates.zero {
+	color: #76CD8B;
+}
+
+.interviewed-candidates.zero {
+	color: #FF95A4;
 }
 
 .acquired-info a {
 	color: inherit;
 	text-decoration: none;
+}
+
+.profiles-error {
+	border: 2px solid #FF95A4;
+	border-radius: 1.4rem;
+	padding: 2.6rem;
 }
 
 .grid-cell {
@@ -204,7 +299,6 @@
 	transform: var(--appear-translate);
 	transition-property: transform, opacity;
 	transition-duration: var(--appear-duration);
-	transition-delay: 0.3s;
 }
 
 .legend > * {

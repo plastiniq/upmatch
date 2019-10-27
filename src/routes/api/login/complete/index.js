@@ -5,6 +5,6 @@ export function get (req, res) {
 		res.json({'status': 'success'})
 	})
 	.catch(error => {
-		res.status(error.status).send(error.message)
+		res.status(error.status).send(error.statusText)
 	})
 }

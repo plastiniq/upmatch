@@ -6,6 +6,6 @@ export function get (req, res) {
   return req.oauth.fetch('GET', `/api/${path}`, null, req.session.accessToken, req.session.accessTokenSecret).then(data => {
     res.json(data)
   }).catch(error => {
-    res.status(error.status).send(error.message)
+    res.status(error.status).send(error.statusText)
   })
 }

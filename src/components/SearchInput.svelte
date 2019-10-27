@@ -55,6 +55,7 @@ $: {
     on:input|preventDefault={handleInput}
     bind:this={jobInput}
     on:dblclick|preventDefault
+    on:focus={selectAll}
   >
   </div>
   <svg class="check" class:on={jobKey} viewBox="0 0 19 15">
@@ -127,7 +128,7 @@ $: {
     -webkit-appearance: none;
     appearance: none;
     font-family : inherit;
-    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 2px 21px rgba(94, 13, 0, 0.1);
     transition: box-shadow 0.2s;
     background-color: #fff;
   }
