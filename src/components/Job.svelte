@@ -1,66 +1,60 @@
 <script>
-	import Comparator from './comparison/comparator.js'
-	import castConfig from './comparison/config.js'
-	import castHandler from './comparison/handler.js'
+	import JobGraph from './JobGraph.svelte'
+	import JobInfo from './JobInfo.svelte'
+	import Login from './Login.svelte'
 	import { stores } from '@sapper/app'
-	import { profile } from '../stores.js'
-	import updateGraph from './graphs/match.js'
-	import { tweened } from 'svelte/motion';
 	import { onMount } from 'svelte'
-
+	import { me } from '../stores.js'
+	import { template } from '../components/comparison/handler.js'
+	
 	export let key
 
-	let matchValue = tweened(0, {
-		duration: 800
-	})
-
 	let mounted
-	let svg
-	let graphWidth = 380
-	let graphHeight = 200
-	let graphBottom = 30
 	let loadingCounter = 0
+	let loaderRadius = 2
 	let loadingTimeoutID
-	let loaded = false
+	let loading = false
 	let job = null
-	let profilesError = ''
+	let freelancersError = ''
 	let jobError = ''
+	let freelancers = null
+	let randomProfile = null
+	let _previousKey = null
 
 	onMount(() => {
 		mounted = true
+
+		if (!$me) {
+			startGraphAnimation()
+		}
+
 	})
 
-
-	$:myProfile = castHandler($profile)
-
-	$:matchPrc = Math.round($matchValue * 100) + '%'
+	$:referenceProfile = $me || randomProfile
 
 	$:loadingProgress = Math.atan(Math.atan(loadingCounter))
 
-	$:jobTitle = job && job.op_title
-
-	$:candidates = job && parseInt(job.op_tot_cand)
-	$:interviews = job && parseInt(job.op_tot_intv)
-
-	$: if (myProfile && mounted) {
-		key
-		compute()
+	$: if (mounted && $me && _previousKey !== key) {
+		_previousKey = key
+		update()
 	}
 
-	function compute () {
-		$matchValue = 0
+	$:loaderDasharray = `${2 * Math.PI * loaderRadius * loadingProgress}rem ${2 * Math.PI * loaderRadius}rem`
+
+	function update () {
+		
 		loadingCounter = 0
 		jobError = ''
-		profilesError = ''
+		freelancersError = ''
 		job = null
-		loaded = false
-		updateGraph(svg, null, null, graphWidth, graphHeight, graphBottom)
+		freelancers = null
 		
 		if (!key) {
 			return
 		}
 
 		startLoading()
+
 		fetch(`/api/job/${key}.json`, { credentials: 'include' }).then(resp => {
 			if (resp.ok) {
 				return resp.json()
@@ -83,25 +77,21 @@
 			return Promise.reject(resp)
 		})
 		.then(json => {
-			let comparator = new Comparator(castConfig)
-			json.profiles.forEach(v => {
-				comparator.train(castHandler(v))
-			})
-			$matchValue = comparator.intersection(myProfile)
-			updateGraph(svg, comparator, myProfile, graphWidth, graphHeight, graphBottom)
+			freelancers = json.profiles
 			finishLoading()
 		})
 		.catch(error => {
 			if (error.status === 404) {
-				profilesError = 'The client does not have active profiles in the hiring history for analysis.'
+				freelancersError = 'This client does not have active freelancers in the hiring history for analysis.'
 			} else {
-				profilesError = error.statusText
+				freelancersError = error.statusText
 			}
+			finishLoading()
 		})
 	}
 
 	function startLoading () {
-		loaded = false
+		loading = true
 		loadingCounter = 0
 		loadingTick()
 	}
@@ -113,55 +103,63 @@
 
 	function loadingTick () {
 		loadingCounter += Math.random() < 0.1 ? 0.2 : 0.03
-		loadingTimeoutID = setTimeout(loadingTick, 100)
+		loadingTimeoutID = setTimeout(loadingTick, 200)
 	}
 
 	function finishLoading () {
-		loaded = true
-		loadingCounter = Infinity
 		clearTimeout(loadingTimeoutID)
+		loadingCounter = Infinity
+		loading = false
+	}
+
+	function startGraphAnimation () {
+		graphAnimationTick()
+	}
+
+	function graphAnimationTick () {
+		let rand = []
+		
+		for (let i = 0; i < 10; i++) {
+			rand.push(Object.assign({}, ...Object.values(template).map(k => ({[k]: Math.round(Math.random() * 5)}))))
+		}
+
+
+		randomProfile = rand.pop()
+		freelancers = rand
+
+		setTimeout(graphAnimationTick, 1000)
 	}
 </script>
 
 {#if jobError}
 	<div>{jobError}</div>
 {:else}
-<div class="job-grid" class:job-info-available={job && jobTitle} class:job-value-available={loaded}>
-	<div class="grid-cell" style="padding-bottom: {graphBottom}px;">
-		<div class="acquired-info">
-			<h3>{jobTitle}</h3>
-			<div class="candidates">
-				<div class="total-candidates" class:zero={!candidates}>{candidates} {candidates === 1 ? 'candidate' : 'candidates'}</div>
-				<div class="interviewed-candidates" class:zero={!interviews}>{interviews} {interviews === 1 ? 'interview' : 'interviews'}</div>
-			</div>
-			<a href={`https://www.upwork.com/ab/proposals/job/${key}/apply`} target="_blank">Apply Job</a>
-		</div>
-	</div>
+<div class="job-grid">
 	<div class="grid-cell">
-		{#if profilesError}
-			<div class="profiles-error" style="margin-bottom: {graphBottom}px">{profilesError}</div>
+		{#if $me}
+			<div class="grid-cell-block transition-block" class:hidden-block={!job}>
+				<JobInfo bind:job />
+			</div>
 		{:else}
-			<div class="job-graph" class:loaded>
-				<div class="match-value">
-					<div class="label">Intersection</div>
-					<div class="value">{matchPrc}</div>
-					<div class="loading-text"></div>
-				</div>
-				<div class="match-graph-wrapper" style="width: 100%; max-width: {graphWidth}px; padding-top: {graphHeight / graphWidth * 100}%;">
-					<svg class="match-graph" bind:this={svg}>
-					<g class="loading">
-						<line class="loading-track" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} />
-						<line class="loading-progress" x1="0" y1={graphHeight - graphBottom} x2="100%" y2={graphHeight - graphBottom} stroke-dasharray={`${loadingProgress * graphWidth} ${graphWidth}`} />
-					</g>
-					</svg>
-				</div>
+			<div class="grid-cell-block">
+				<Login />
 			</div>
 		{/if}
 	</div>
-	<div class="grid-cell" style="padding-bottom: {graphBottom}px;">
-		<div class="legend">
-			<div class="my">My Profile</div>
-			<div class="customer">Customer Preferences</div>
+	<div class="grid-cell">
+		<div class="loader" class:loading>
+			<svg style="width: {loaderRadius * 2}rem; height: {loaderRadius * 2}rem;">
+				<circle r="50%" cx="50%" cy="50%" style="stroke-dasharray: {loaderDasharray};"></circle>
+			</svg>
+		</div>
+		<div class="job-computation-wrapper transition-block" class:hidden-block={!(freelancers || freelancersError)}>
+			<div class="job-computation grid-cell-block">
+				{#if freelancersError}
+					<div class="freelancers-error">{freelancersError}</div>
+				{:else}
+					<JobGraph bind:freelancers bind:me={referenceProfile} />
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
@@ -171,269 +169,118 @@
 :root {
 	--appear-duration: 1s;
 	--appear-translate: translateY(20px);
+	--my-color:#3FA2FF; 
+	--customer-color: #FFA65E;
+	--job-block-width: 550px;
+	--job-block-height: 550px;
+}
+
+.loader {
+	position: absolute;
+	background-color: #5DC0A8;
+	border-radius: 100%;
+	padding: 1rem;
+	top: 50%;
+	transition: transform, opacity;
+	transition-duration: 250ms;
+	box-shadow: 0 0 20px rgba(0, 89, 116, 0.2);
+	opacity: 0;
+	transform: translate(-50%, -50%) scale(0.8);
+	z-index: 1;
+}
+
+.loader.loading {
+	transform: translate(-50%, -50%);
+	opacity: 1;
+}
+
+.loader svg {
+	width: 5rem;
+	height: 5rem;
+	overflow: visible;
+	display: block;
+	font-size: inherit;
+}
+
+.loader svg circle {
+	transition: stroke-dasharray 0.3s;
+	stroke-linecap: round;
+	fill: none;
+	stroke-width: 2;
+	stroke: #fff;
 }
 
 .job-grid {
 	display: flex;
 	flex-grow: 1;
 	max-width: 1300px;
-}
-
-.job-grid.job-info-available .acquired-info {
-	opacity: 1;
-	transform: translateY(0);
-}
-
-.job-grid.job-value-available .legend {
-	opacity: 1;
-	transform: translateY(0.2em);
-}
-
-.job-grid.job-value-available .match-value {
-	transform: translateY(0);
-	opacity: 1;
-}
-
-.acquired-info {
-	max-width: 300px;
-	box-sizing: border-box;
-	opacity: 0;
-	transform: var(--appear-translate);
-	transition-property: opacity, transform;
-	transition-duration: var(--appear-duration);
-}
-
-.acquired-info h3 {
-	padding: 0;
-	margin: 0;
-	font-size: inherit;
-	opacity: 0.5;
-	font-weight: inherit;
-	margin-bottom: 3.5rem;
-}
-
-.candidates {
-	font-size: 1.4rem;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	margin-bottom: 3.5rem;
-}
-
-.candidates > * {
-	border-radius: 100px;
-	padding: 0.3rem 1.1rem;
-	font-weight: 700;
-	color: #fff;
-	box-sizing: border-box;
-}
-
-.candidates > :not(:last-child) {
-	margin-bottom: 0.8rem;
-}
-
-.candidates .total-candidates {
-	background-color: #76CD8B;
-}
-
-.candidates .interviewed-candidates {
-	background-color: #FF95A4;
-}
-.candidates .zero {
-	background-color: transparent !important;
-	/* box-shadow: inset 0 0 0 1px #E8E8E8; */
-	border: 2px solid #EBEBEB;
-}
-
-.total-candidates.zero {
-	color: #76CD8B;
-}
-
-.interviewed-candidates.zero {
-	color: #FF95A4;
-}
-
-.acquired-info a {
-	color: inherit;
-	text-decoration: none;
-}
-
-.profiles-error {
-	border: 2px solid #FF95A4;
-	border-radius: 1.4rem;
-	padding: 2.6rem;
+	justify-content: center;
+	min-height: 40rem;
 }
 
 .grid-cell {
+	position: relative;
 	display: flex;
-	justify-content: center;
-	align-items: flex-end;
+	flex-direction: column;
+	justify-content: space-evenly;
+	flex-shrink: 1;
 	flex-basis: 0;
-	padding: 0 2.5vw;
-	flex-grow: 1;
-}
-
-.grid-cell:first-child, .grid-cell:last-child {
 	flex-grow: 1;
 }
 
 .grid-cell:first-child {
-	justify-content: flex-end;
+	align-items: flex-end;
 }
 
 .grid-cell:last-child {
-	justify-content: flex-start;
+	align-items: flex-start;
 }
 
-.job-graph {
+.grid-cell-block {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	position: relative;
-	padding-bottom: 5px;
+	justify-content: space-evenly;
+	flex-shrink: 1;
 	width: 100%;
+	box-sizing: border-box;
+	max-width: var(--job-block-width);
+	max-height: var(--job-block-height);
+	height: 100%;
 }
 
-.legend {
+.transition-block {
+	transition: transform 0.5s, opacity 0.5s;
+}
+
+.hidden-block {
 	opacity: 0;
-	transform: var(--appear-translate);
-	transition-property: transform, opacity;
-	transition-duration: var(--appear-duration);
+	transform: translateY(20);
 }
 
-.legend > * {
+.freelancers-error {
+	padding: 2.6rem;
+}
+
+.job-computation-wrapper {
+	height: 100%;
+	max-height: calc(var(--job-block-height) + 10rem);
 	display: flex;
 	align-items: center;
+	background-color: #EBFFFA;
+	border-radius: 2rem;
+	width: 100%;
+	max-width: var(--job-block-width);
 }
 
-.legend > :not(:last-child) {
-	margin-bottom: 2px;
-}
 
-.legend .my:before, .legend .customer:before {
-	content: "";
-	display: block;
-	width: 14px;
-	height: 14px;
-	border-radius: 100%;
-	margin-right: 15px;
-}
-
-.legend .my, .legend .customer {
-	white-space: nowrap;
-}
-
-.legend .my:before {
-	background-color: #C8EFF7;
-}
-
-.legend .customer:before {
-	background-color: #FF95A4;
-}
-
-.match-value {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	position: relative;
-	margin-bottom: 1.4285em;
-	transform: translateY(80px);
-	transition-property: transform, opacity;
-	transition-duration: var(--appear-duration);
-	opacity: 0;
-}
-
-.match-value .value {
-	font-size: 48px;
-	font-weight: 700;
-}
-
-.match-value .loading-text {
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
-	bottom: 0;
-	opacity: 0.5;
-}
-
-.match-value .label {
-	font-size: 14px;
-	font-weight: 400;
-}
-
-.match-graph-wrapper {
-	position: relative;
-}
-
-.match-graph {
-	overflow: visible;
-	max-width: 100%;
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-.match-graph .loading {
-  transition: opacity 0.2s;
-}
-
-.job-graph.loaded .loading {
-	opacity: 0;
-}
-
-.match-graph .loading-track {
-  stroke-width: 2;
-  stroke: #F1F1F1;
-  stroke-linecap: round;
-}
-
-.match-graph .loading-progress {
-  stroke-width: 2;
-  stroke: #FF95A4;
-  stroke-linecap: round;
-  transition: stroke-dasharray 0.2s;
-}
-
-.match-graph :global(path.customer) {
-  fill: #FF95A4;
-}
-
-.match-graph :global(path.me) {
-  fill: #C8EFF7;
-  mix-blend-mode: multiply;
-}
-
-.match-graph :global(.axis-text) {
-  font-size: 14px;
-  font-family: inherit;
-  fill: #71636C;
-}
-
-@media (max-width: 800px) {
+@media (max-width: 650px) {
 	.job-grid {
 		flex-direction: column;
-		height: 100%;
-		align-items: stretch;
-		justify-content: space-between;
 	}
 
-	.grid-cell {
-		flex-shrink: 0;
-		flex-grow: 0 !important;
-		flex-basis: auto;
-		align-items: initial;
-		padding: 0;
-		justify-content: stretch !important;
-		padding-bottom: 0 !important;
-	}
-
-
-	.acquired-info {
-		max-width: none;
-		width: 100%;
+	.loader {
+		left: 50%;
+		top: 0;
 	}
 }
 </style>

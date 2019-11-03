@@ -9,7 +9,6 @@
       this.redirect(302, '/')
     } else {
       error = resp.statusText
-      // this.redirect(302, '/login')
     }
 	}
 </script>

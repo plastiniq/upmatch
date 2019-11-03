@@ -34,7 +34,7 @@ async function handleInput(event, input) {
 
 function selectAll () {
   setParentSelection(jobInput, [0, jobInput.textContent.length])
-}
+} 
 
 $: {
   dispatch('key', { jobKey })
@@ -47,7 +47,7 @@ $: {
 </script>
 
 <div class="search-input" on:dblclick={selectAll}>
-  <div class="placeholder">Paste Job Link or Search</div>
+  <div class="placeholder">Paste Job Link Here</div>
   <div 
     id="job-input"
     type="text" 
@@ -65,6 +65,10 @@ $: {
 
 <style>
 
+  :root {
+    --green-color: #6FBCA8;
+  }
+
   .search-input {
     position: relative;
   }
@@ -80,24 +84,24 @@ $: {
   }
 
   .search-input :global(.hl) {
-    color: #76CD8B;
+    color: var(--green-color);
     font-weight: 700;
   }
 
   .check {
     overflow: visible;
     position: absolute;
-    right: 1.238em;
+    right: 2.5rem;
     top: 50%;
     transform: translateY(-50%);
-    width: 0.90em;
-    height: 0.71em;
+    width: 2rem;
+    height: 1.5rem;
     pointer-events: none;
   }
 
   .check path {
     stroke-width: 3px;
-    stroke: #76CD8B;
+    stroke: var(--green-color);
     fill: none;
     stroke-linecap: round;
     stroke-dasharray: 28.74px 100px;
@@ -112,10 +116,10 @@ $: {
 
   .placeholder, #job-input {
     border-style: solid;
-    border-top-width: 0.95em;
-    border-right-width: 3.33em;
-    border-bottom-width: 1.047em;
-    border-left-width: 1.19em;
+    border-top-width: 2rem;
+    border-right-width: 7rem;
+    border-bottom-width: 2.2rem;
+    border-left-width: 2.5rem;
     border-color: transparent;
     box-sizing: border-box;
     overflow: hidden;
@@ -124,18 +128,18 @@ $: {
 
   #job-input {
     position: relative;
-    border-radius: 7px;
+    border-radius: 1.2rem;
     -webkit-appearance: none;
     appearance: none;
     font-family : inherit;
-    box-shadow: 0 2px 21px rgba(94, 13, 0, 0.1);
+    box-shadow: 0 0.2rem 3rem rgba(0, 89, 116, 0.2);
     transition: box-shadow 0.2s;
     background-color: #fff;
   }
 
   #job-input:focus {
     outline: none;
-    box-shadow: 0 0 0  2px rgba(0, 0, 255, 0.2);
+    box-shadow: 0 0 0 2px #1C95FF;
   }
 
   #job-input:empty {

@@ -4,9 +4,10 @@ import * as d3Scale from 'd3-scale'
 import * as d3Transition from 'd3-transition'
 import * as d3Ease from 'd3-ease'
 
+const CURVE_SCALE = 0.94
+
 export default function update (svgNode, comparator, profile, width, height, bottom) {
   const d3 = Object.assign({}, d3Shape, d3Selection, d3Scale, d3Transition, d3Ease)
-  var bottomOffset = -5
   var graphData = []
   var freelancerData = []
   var maxOutput = 0
@@ -37,7 +38,7 @@ export default function update (svgNode, comparator, profile, width, height, bot
     .range([0, width])
 
   var yScale = d3.scaleLinear()
-    .domain([0, maxY])
+    .domain([0, maxY * CURVE_SCALE])
     .range([height - bottom, 0])
 
   var zeroLine = d3.line()
@@ -50,35 +51,20 @@ export default function update (svgNode, comparator, profile, width, height, bot
     .y(function(d) { return yScale(d.y * 1.4) }) 
     .curve(d3.curveBasis)
 
-  var pathBottom = (offset) => {
-    return `M ${xScale(0)} ${yScale(0)}
-            Q ${xScale(graphData.length) * 0.5} ${yScale(0) - offset} ${xScale(graphData.length)} ${yScale(0) - offset} 
-            Q ${xScale(graphData.length) * 1.5} ${yScale(0) - offset} ${xScale(graphData.length * 2)} ${yScale(0)}`
-  }
-
-  drawArea('customer', graphData)
   drawArea('me', freelancerData)
+  drawArea('customer', graphData)
 
   function drawArea (className, data, delay = 0) {
     svg.selectAll(`.${className}`).data(data.length ? [addZeroPoints(data)] : [])
     .join(
-      enter => enter.append('path').attr('class', className).attr('d', function (d, i) { return zeroLine(d, i) + pathBottom(0) }).call(selection => selection.each(function(){ this._d = d3.select(this).attr('d') })).call(selection => selection.transition(ease).delay(delay).attr('d', function (d,i) { return line(d, i) + pathBottom(bottomOffset) })),
-      update => update.attr('d', zeroLine).call(selection => selection.transition(ease).duration(1000).attr('d', function (d,i) { return line(d, i) + pathBottom(bottomOffset) })),
+      enter => enter.append('path').attr('class', className).attr('d', function (d, i) { return zeroLine(d, i) }).call(selection => selection.each(function(){ this._d = d3.select(this).attr('d') })).call(selection => selection.transition(ease).delay(delay).attr('d', function (d,i) { return line(d, i) })),
+      update => update.attr('d', zeroLine).call(selection => selection.transition(ease).duration(1000).attr('d', function (d,i) { return line(d, i) })),
       remove => remove.transition().duration(1000).attr('d', function () { return this._d }).remove()
     )
   }
 
-  svg.selectAll('defs').data([0]).join('defs')
-
-  svg.select('defs').selectAll(`#textpath`).data([1])
-    .join(
-      enter => enter.append('path').attr('id', 'textpath').attr('d', function () { return pathBottom(0) }).call(selection => selection.transition().duration(1000).attr('d', function () { return pathBottom(bottomOffset) })),
-      update => update.attr('d', zeroLine).call(selection => selection.transition().duration(1000).attr('d', function () { return pathBottom(bottomOffset) })),
-      remove => remove.remove()
-    )
-
   svg.selectAll('.axis-text').data(graphData).join(
-    enter => enter.append('text').call(selection => selection.attr('class', 'axis-text').attr('text-anchor', 'middle').attr('dy', bottom).append('textPath').attr('xlink:href', '#textpath').attr('startOffset', (d, i) => `${ (i + 0.5) / graphData.length * 100 }%` ).text(d => d.key)).call(selection => selection.attr('fill-opacity', 0).transition().duration(500).delay((d, i) => i * 200).attr('fill-opacity', 1)),
+    enter => enter.append('text').text(d => d.key).attr('class', 'axis-text').attr('text-anchor', 'middle').attr('dy', yScale(0) + bottom).attr('dx', (d, i) => xScale(i * 2 + 1)).call(selection => selection.attr('fill-opacity', 0).transition().duration(500).delay((d, i) => i * 200).attr('fill-opacity', 1)),
     update => update,
     exit => exit.remove()
   )

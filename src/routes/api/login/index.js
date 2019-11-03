@@ -4,7 +4,6 @@ export function post(req, res) {
 			req.session.requestTokenSecret = body.requestTokenSecret
 			res.json({ url: body.url })
 		}).catch(error => {
-			console.log(error)
 			res.json(error)
 		})
 }
