@@ -3,7 +3,7 @@
 	import JobInfo from './JobInfo.svelte'
 	import Login from './Login.svelte'
 	import { stores } from '@sapper/app'
-	import { onMount } from 'svelte'
+	import { onMount, tick } from 'svelte'
 	import { me } from '../stores.js'
 	import { template } from '../components/comparison/handler.js'
 	
@@ -65,7 +65,6 @@
 			jobError = error.statusText
 		})
 		.then(resp => {
-			console.log(resp)
 			job = resp.profile
 			let profileKeys = getAssignments(resp)
 			return fetch(`/api/profiles/${profileKeys.join(';')}.json`, { credentials: 'include' })
@@ -127,7 +126,7 @@
 		randomProfile = rand.pop()
 		freelancers = rand
 
-		setTimeout(graphAnimationTick, 1000)
+		setTimeout(graphAnimationTick, 950)
 	}
 </script>
 
@@ -137,7 +136,7 @@
 <div class="job-grid">
 	<div class="grid-cell">
 		{#if $me}
-			<div class="grid-cell-block transition-block" class:hidden-block={!job}>
+			<div class="grid-cell-block transition-block">
 				<JobInfo bind:job />
 			</div>
 		{:else}
@@ -152,7 +151,7 @@
 				<circle r="50%" cx="50%" cy="50%" style="stroke-dasharray: {loaderDasharray};"></circle>
 			</svg>
 		</div>
-		<div class="job-computation-wrapper transition-block" class:hidden-block={!(freelancers || freelancersError)}>
+		<div class="job-computation-wrapper transition-block">
 			<div class="job-computation grid-cell-block">
 				{#if freelancersError}
 					<div class="freelancers-error">{freelancersError}</div>
@@ -266,7 +265,7 @@
 	max-height: calc(var(--job-block-height) + 10rem);
 	display: flex;
 	align-items: center;
-	background-color: #EBFFFA;
+	background-color: #E3FFFC;
 	border-radius: 2rem;
 	width: 100%;
 	max-width: var(--job-block-width);

@@ -1,6 +1,11 @@
 
 @import url('https://fonts.googleapis.com/css?family=Red+Hat+Text:400,500,700&display=swap');
 
+:root {
+  --green-color: #52C2B6;
+  --bright-green: #B3F1EB;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -12,10 +17,14 @@ body {
   font-family: 'Red Hat Text', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #32334F;
+  color: #242453;
   display: flex;
   box-sizing: border-box;
   font-size: 2.1rem;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 #sapper {
@@ -31,9 +40,9 @@ a[target="_blank"]:after {
   width: 0.65em;
   height: 0.65em;
   margin-left: 0.4em;
-  background: url('/blank-target.svg') no-repeat left bottom;
-  background-size: contain;
-  transform: translateY(0.02em);
+  background: url('/blank-target.svg') no-repeat center center;
+  background-size: 100%;
+  transform: translateY(0.072em);
 }
 
 a {
@@ -45,7 +54,7 @@ a {
 }
 
 a:hover {
-  opacity: 0.7;
+  filter: opacity(0.8);
 }
 
 .popup {
@@ -66,6 +75,23 @@ h2 {
   margin: 0;
   font-size: 3.7rem;
   font-weight: 700;
+}
+
+.empty .placeholder {
+  display: inline;
+  background-color: currentColor;
+  opacity: 0.1;
+  border-radius: 0;
+  color: inherit;
+  border-color: currentColor !important;
+  pointer-events: none;
+  box-shadow: 0 2px 0 0 #fff;
+  transition: none !important;
+}
+
+.empty .placeholder *, .empty .placeholder:before, .empty .placeholder:after {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 @media (max-width: 800px) {

@@ -46,23 +46,23 @@
 
 </script>
 
-<div class="graph" class:ready={freelancers}>
-	<div class="match-value">
+<div class="graph" class:empty={!freelancers}>
+	<div class="match-value placeholder">
       <div class="label">Intersection</div>
       <div class="value">{matchPrc}</div>
       <div class="loading-text"></div>
     </div>
 
-    <div class="job-graph" style="width: 100%; max-width: {graphWidth}px;">
+    <div class="job-graph placeholder" style="width: 100%; max-width: {graphWidth}px;">
       <div class="match-graph-wrapper" style="padding-top: {graphHeight / graphWidth * 100}%;">
         <svg class="match-graph" bind:this={svg}>
         </svg>
       </div>
     </div>
 
-    <div class="legend" style="max-width: {graphWidth}px;">
-      <div class="my">My Profile</div>
+    <div class="legend placeholder" style="max-width: {graphWidth}px;">
       <div class="customer">Customer Preferences</div>
+      <div class="my">My Profile</div>
     </div>
 </div>
 
@@ -80,22 +80,18 @@
     box-sizing: border-box;
   }
 
-  .ready .legend {
+  /* .ready:not(.empty) .legend {
     opacity: 1;
     transform: translateY(0.2em);
   }
 
-  .ready .match-value {
+  .ready:not(.empty) .match-value {
     transform: translateY(0);
     opacity: 1;
-  }
+  } */
 
 
 .legend {
-	opacity: 0;
-	transform: var(--appear-translate);
-	transition-property: transform, opacity;
-	transition-duration: var(--appear-duration);
 	display: flex;
 	justify-content: space-between;
 	font-size: 1.4rem;
@@ -134,11 +130,9 @@
 	align-items: center;
 	flex-direction: column;
 	position: relative;
-	transition-property: transform, opacity;
-	transition-duration: var(--appear-duration);
-	opacity: 0;
   line-height: 0.75;
   color: #3F695E;
+  min-width: 130px;
 }
 
 .match-value .value {

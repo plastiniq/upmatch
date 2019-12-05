@@ -1,7 +1,7 @@
 <script>
   export let job
 
-  $:jobTitle = job && job.op_title
+  $:jobTitle = (job && job.op_title) || 'Please paste job link or job key in the upper input'
 
   $:hireRate = job && Math.min(100, Math.round(job.buyer.op_tot_jobs_filled / job.buyer.op_tot_jobs_posted * 100))
 
@@ -13,17 +13,21 @@
 
 </script>
 
-<div class="job-info">
-  <h2 class="job-title">{jobTitle}</h2>
+<div class="job-info" class:empty={!job}>
+  <h2 class="job-title"><span class="placeholder">{jobTitle}</span></h2>
   <div class="extra-info">
     <div class="hire-rate" class:hl={hireRate <= 50}>
-      <span class="value">{isNaN(hireRate) ? 'Unknown' : hireRate + '%'}</span> Hire Rate
+      <span class="placeholder">
+        <span class="value">{isNaN(hireRate) ? 'Unknown' : hireRate + '%'}</span> Hire Rate
+      </span>
     </div>
     <div class="interviews" class:zero={!interviews}>
-      <span class="value">{interviews}</span> {interviews === 1 ? 'Interview' : 'Interviews'}
+      <span class="placeholder">
+        <span class="value">{interviews}</span> {interviews === 1 ? 'Interview' : 'Interviews'}
+      </span>
     </div>
   </div>
-  <a href={`https://www.upwork.com/jobs/${key}/`} class="apply-job" target="_blank">Open Job</a>
+  <a class="apply-job placeholder" href={`https://www.upwork.com/jobs/${key}/`} target="_blank">Open Job</a>
 </div>
 
 <style>
@@ -55,9 +59,13 @@
   }
 
   .apply-job {
-    padding: 1.1rem 2.4rem 1.3rem 2.4rem;
-    border-radius: 100rem;
-    border: 1px solid #B9E1D7;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--bright-green);
+    padding: 1.3rem 2.6rem 1.5rem 2.6rem;
+    border-radius: 1000px;
+    font-size: 2.1rem;
+    font-weight: 700;
   }
 
   @media (max-width: 800px) {

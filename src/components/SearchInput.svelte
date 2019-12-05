@@ -64,11 +64,6 @@ $: {
 </div>
 
 <style>
-
-  :root {
-    --green-color: #6FBCA8;
-  }
-
   .search-input {
     position: relative;
   }
