@@ -60,7 +60,7 @@ a:hover {
 .popup {
   z-index: 1000;
   border-radius: 0.8rem;
-  background-color: #5E516D;
+  background-color: #46466E;
   font-size: 1.6rem;
   padding: 1.2rem 2.2rem;
   color: #fff;
@@ -80,7 +80,7 @@ h2 {
 .empty .placeholder {
   display: inline;
   background-color: currentColor;
-  opacity: 0.1;
+  opacity: 0.05;
   border-radius: 0;
   color: inherit;
   border-color: currentColor !important;

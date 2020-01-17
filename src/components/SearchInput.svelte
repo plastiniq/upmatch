@@ -47,7 +47,6 @@ $: {
 </script>
 
 <div class="search-input" on:dblclick={selectAll}>
-  <div class="placeholder">Paste Job Link Here</div>
   <div 
     id="job-input"
     type="text" 
@@ -66,16 +65,6 @@ $: {
 <style>
   .search-input {
     position: relative;
-  }
-
-  .placeholder {
-    opacity: 0.4;
-    position: absolute;
-    left: 26px;
-    top: 0;
-    left: 0;
-    white-space: nowrap;
-    text-overflow: ellipsis;
   }
 
   .search-input :global(.hl) {
@@ -109,16 +98,17 @@ $: {
     stroke-dashoffset: 0;
   }
 
-  .placeholder, #job-input {
-    border-style: solid;
-    border-top-width: 2rem;
-    border-right-width: 7rem;
-    border-bottom-width: 2.2rem;
-    border-left-width: 2.5rem;
+  #job-input {
+    border: 0;
+    padding-top: 2rem;
+    padding-right: 7rem;
+    padding-bottom: 2.2rem;
+    padding-left: 2.5rem;
     border-color: transparent;
     box-sizing: border-box;
     overflow: hidden;
     white-space: nowrap;
+    cursor: text;
   }
 
   #job-input {
@@ -140,5 +130,11 @@ $: {
   #job-input:empty {
     background-color: transparent;
   }
+
+  #job-input:empty:before {
+    content: "Paste Job Link Here";
+    color: #808080;
+  }
+  
  </style>
 

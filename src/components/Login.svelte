@@ -37,9 +37,6 @@
     <div class="login-button" class:loading={urlLoading} on:click={loginHandler}>
       Login to Upwork
     </div>
-    <div class="open-source-project">
-      <a href="https://github.com/plastiniq/upmatch" target="_blank">Open-Source Project</a>
-    </div>
   </div>
 </div>
 
