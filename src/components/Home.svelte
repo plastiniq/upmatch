@@ -44,7 +44,7 @@
     fetch(`/api/logout`, { method: 'POST', credentials: 'include' }).then(resp => {
       if (resp.ok) {
 				me.set(null)
-        goto('/login')
+        goto('/')
       } else {
         errors.update(v => v.concat(resp))
       }

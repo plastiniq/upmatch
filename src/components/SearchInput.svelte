@@ -55,8 +55,7 @@ $: {
     bind:this={jobInput}
     on:dblclick|preventDefault
     on:focus={selectAll}
-  >
-  </div>
+  ></div>
   <svg class="check" class:on={jobKey} viewBox="0 0 19 15">
     <path d="M 0 7.61 L 6.95 15 L 24.59 -6.89" />
   </svg>
