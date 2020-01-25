@@ -1,5 +1,4 @@
 #!/bin/bash
-ruby generate.rb
 git add .
 git commit -am "Update"
 git push heroku master

@@ -11,7 +11,7 @@
 
 	let mounted
 	let loadingCounter = 0
-	let loaderRadius = 2
+	let loaderRadius = 20
 	let loadingTimeoutID
 	let loading = false
 	let job = null
@@ -39,7 +39,7 @@
 		update()
 	}
 
-	$:loaderDasharray = `${2 * Math.PI * loaderRadius * loadingProgress}rem ${2 * Math.PI * loaderRadius}rem`
+	$:loaderDasharray = `${2 * Math.PI * loaderRadius * loadingProgress} ${2 * Math.PI * loaderRadius}`
 
 	function update () {
 		
@@ -81,7 +81,7 @@
 		})
 		.catch(error => {
 			if (error.status === 404) {
-				freelancersError = 'This client does not have active freelancers in the hiring history for analysis.'
+				freelancersError = 'This client does not have hiring history for analysis.'
 			} else {
 				freelancersError = error.statusText
 			}
@@ -147,7 +147,7 @@
 	</div>
 	<div class="grid-cell">
 		<div class="loader" class:loading>
-			<svg style="width: {loaderRadius * 2}rem; height: {loaderRadius * 2}rem;">
+			<svg style="width: {loaderRadius * 2}px; height: {loaderRadius * 2}px;">
 				<circle r="50%" cx="50%" cy="50%" style="stroke-dasharray: {loaderDasharray};"></circle>
 			</svg>
 		</div>

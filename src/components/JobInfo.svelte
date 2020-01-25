@@ -61,7 +61,7 @@
   .apply-job {
     position: relative;
     cursor: pointer;
-    border: 2px solid var(--bright-green);
+    border: 2px solid var(--color-bright-green);
     padding: 1.3rem 2.6rem 1.5rem 2.6rem;
     border-radius: 1000px;
     font-size: 2.1rem;

@@ -2,8 +2,10 @@
 @import url('https://fonts.googleapis.com/css?family=Red+Hat+Text:400,500,700&display=swap');
 
 :root {
-  --green-color: #52C2B6;
-  --bright-green: #B3F1EB;
+  --color-green: #52C2B6;
+  --color-bright-green: #B3F1EB;
+  --color-magenta: #F83C9E;
+  --color-red: #FF5B5B;
 }
 
 html, body {
@@ -57,17 +59,38 @@ a:hover {
   filter: opacity(0.8);
 }
 
+a:active {
+  filter: opacity(0.8) brightness(0.8);
+}
+
 .popup {
   z-index: 1000;
   border-radius: 0.8rem;
-  background-color: #46466E;
   font-size: 1.6rem;
-  padding: 1.2rem 2.2rem;
   color: #fff;
   text-transform: none;
   text-align: left;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+}
+
+.popup > * {
+  background-color: #46466E;
+  padding: 0 2.2rem;
+  cursor: default;
+}
+
+.popup > *:active {
+  filter: brightness(0.8);
+}
+
+.popup > :first-child {
+  padding-top: 1.2rem;
+}
+
+.popup > :last-child {
+  padding-bottom: 1.2rem;
 }
 
 h2 {
@@ -94,8 +117,25 @@ h2 {
   pointer-events: none;
 }
 
+.login-button {
+  position: relative;
+  cursor: pointer;
+  background-color: var(--color-magenta);
+  color: #fff;
+  padding: 1.3rem 2.6rem 1.5rem 2.6rem;
+  border-radius: 1000px;
+  font-size: 2.1rem;
+  font-weight: 700;
+}
+
 @media (max-width: 800px) {
 	html {
     font-size: 7px;
+  }
+}
+
+@media (max-width: 320px) {
+	html {
+    font-size: 5px;
   }
 }

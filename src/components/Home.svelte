@@ -10,19 +10,13 @@
 	let jobKey = null
 	let query = ''
 	let searchInput
-	let mounted = false
 	let menuIsOpen = false
+	let mounted = false
 
 	onMount(() => {
-		tick().then(() => {
-      if (localStorage.loginHash) {
-        location.hash = localStorage.loginHash
-        localStorage.loginHash = ''
-      }
-
-			query = decodeURIComponent(location.hash.substr(1))
-			mounted = true
-		})
+		query = decodeURIComponent(location.hash.substr(1) || sessionStorage.getItem('notLoggedQuery') || '')
+		sessionStorage.removeItem('notLoggedQuery');
+		mounted = true
 	})
 
 	$: if (mounted) {
@@ -30,6 +24,10 @@
 			location.hash = encodeURIComponent(query)
 		} else {
 			history.pushState('', document.title, window.location.pathname + window.location.search)
+		}
+
+		if (!$me) {
+			sessionStorage.setItem('notLoggedQuery', query)
 		}
 	}
 
@@ -65,16 +63,18 @@
 	<header>
 		<SearchInput on:key={handleKey} bind:this={searchInput} bind:value={query} />
 		{#if $me}
-			<div class="user-menu">
-				<div class="user-portrait" class:no-image={!portrait} style="background-image: {portrait ? `url(${portrait})` : `none`}" tabindex="0" on:mousedown={userClickHandler} on:focus={ () => (menuIsOpen = true) } on:blur={ () => (menuIsOpen = false) }>
+			<div class="user-menu" tabindex="0">
+				<div class="user-portrait" class:no-image={!portrait} style="background-image: {portrait ? `url(${portrait})` : `none`}" on:mousedown={userClickHandler} on:focus={ () => (menuIsOpen = true) } on:blur={ () => (menuIsOpen = false) }>
 					{#if !portrait}
 						{initials}
 					{/if}
-					<div class="user-menu-popup popup" >
-						<div on:click={logOut}>Log Out</div>
-					</div>
+				</div>
+				<div class="user-menu-popup popup" >
+					<div on:click={logOut}>Log Out</div>
 				</div>
 			</div>
+		{:else if query}
+			<a class="login-button" href="/login">Login</a>
 		{/if}
 	</header>
 
@@ -114,11 +114,11 @@
 	.github-link:before {
 		content: "";
 		display: inline-block;
-		width: 16px;
-		height: 16px;
+		width: 1.6rem;
+		height: 1.6rem;
 		background: url('/images/icons/github.svg') no-repeat;
 		background-size: contain;
-		margin-right: 10px;
+		margin-right: 1rem;
 	}
 
 	footer a {
@@ -129,6 +129,7 @@
 		display: flex;
 		margin-bottom: 4.5vmin;
 		flex-shrink: 0;
+		align-items: center;
 	}
 
 	header > :global(:first-child) {
@@ -136,11 +137,14 @@
 		width: 0;
 	}
 
+	header > :global(:first-child:not(:only-child)) {
+		margin-right: 2.5rem;
+	}
+	
 	.user-menu {
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
-    padding-left: 2.5rem;
     position: relative;
   }
 
@@ -165,14 +169,17 @@
 		border: 2px solid #EEEBEF;
   }
   
-  .user-portrait:focus {
+  .user-menu:focus {
      outline: none;
-  }
+	}
 
-  .user-portrait:focus .user-menu-popup {
+	.user-menu:focus .user-menu-popup {
     display: block;
   }
-  
+	
+	.user-portrait:active {
+		filter: brightness(0.8);
+	}
 
   .user-menu-popup {
     position: absolute;
@@ -190,6 +197,12 @@
 	@media (max-width: 650px) {
 		header {
 			margin-bottom: 0;
+		}
+
+		footer {
+			height: 30px;
+			border: 0;
+			margin: 0;
 		}
 	}
 </style>

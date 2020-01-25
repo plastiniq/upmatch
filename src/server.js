@@ -4,6 +4,7 @@ import compression from 'compression'
 import * as sapper from '@sapper/server'
 import UpworkOAuth from '@upwork/upwork.js'
 import redis from 'redis'
+import nocache from 'nocache'
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config()
@@ -22,13 +23,14 @@ const OAUTH = new UpworkOAuth(process.env.UPWORK_KEY, process.env.UPWORK_SECRET)
 
 APP.use(express.json())
 APP.use(express.urlencoded({ extended: true }))
+APP.use(nocache())
 
 APP.listen(PORT, err => {
 	if (err) console.log('error', err);
 })
 
 APP.use(SESSION({
-	secret: 'sj7gebmv6oxz',
+	secret: process.env.SESSION_SECRET,
 	store: new RedisStore({ client: redisClient }),
   resave: false,
   saveUninitialized: true,

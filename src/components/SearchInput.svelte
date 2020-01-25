@@ -10,6 +10,7 @@ const dispatch = createEventDispatcher();
 let jobKey
 let jobInput
 let textContent
+let justFocused
 
 $: if ((value != textContent) && jobInput) {
   jobInput.innerHTML = value
@@ -30,6 +31,16 @@ async function handleInput(event, input) {
     input.innerHTML = textContent
   }
   setParentSelection(input, selection)
+}
+
+function focusHandler () {
+  justFocused = true
+  selectAll()
+}
+
+function mouseUpHandler (e) {
+  justFocused && e.preventDefault()
+  justFocused = false
 }
 
 function selectAll () {
@@ -54,10 +65,15 @@ $: {
     on:input|preventDefault={handleInput}
     bind:this={jobInput}
     on:dblclick|preventDefault
-    on:focus={selectAll}
+    on:mouseup={mouseUpHandler}
+    on:focus={focusHandler}
   ></div>
-  <svg class="check" class:on={jobKey} viewBox="0 0 19 15">
+  <svg class="mark-check" class:on={jobKey} viewBox="0 0 19 15">
     <path d="M 0 7.61 L 6.95 15 L 24.59 -6.89" />
+  </svg>
+  <svg class="mark-error" class:on={textContent && !jobKey} viewBox="0 0 15 15">
+    <circle r="10.5" cx="7.5" cy="7.5" />
+    <line x1="0" y1="15" x2="15" y2="0" />
   </svg>
 </div>
 
@@ -67,11 +83,11 @@ $: {
   }
 
   .search-input :global(.hl) {
-    color: var(--green-color);
+    color: var(--color-green);
     font-weight: 700;
   }
 
-  .check {
+  .mark-check {
     overflow: visible;
     position: absolute;
     right: 2.5rem;
@@ -82,9 +98,9 @@ $: {
     pointer-events: none;
   }
 
-  .check path {
+  .mark-check path {
     stroke-width: 3px;
-    stroke: var(--green-color);
+    stroke: var(--color-green);
     fill: none;
     stroke-linecap: round;
     stroke-dasharray: 28.74px 100px;
@@ -93,16 +109,52 @@ $: {
     transition-timing-function: cubic-bezier(0.620, 0.135, 0.325, 1.615);
   }
 
-  .check.on path {
+  .mark-check.on path {
+    stroke-dashoffset: 0;
+  }
+
+  .mark-error {
+    display: block;
+    overflow: visible;
+    position: absolute;
+    right: 2.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    pointer-events: none;
+  }
+
+  .mark-error > circle {
+    stroke-dasharray: 66px 100px;
+    stroke-dashoffset: 66px;
+    transition: stroke-dashoffset 0.5s;
+    stroke-linecap: round;
+  }
+
+  .mark-error > line {
+    stroke-dasharray: 21px 100px;
+    stroke-dashoffset: 21px;
+    transition: stroke-dashoffset 0.4s;
+    transition-delay: 0.1s;
+  }
+
+  .mark-error > line, .mark-error > circle {
+    fill: none;
+    stroke-width: 3px;
+    stroke: var(--color-red);
+  }
+
+  .mark-error.on > line, .mark-error.on > circle {
     stroke-dashoffset: 0;
   }
 
   #job-input {
-    border: 0;
-    padding-top: 2rem;
-    padding-right: 7rem;
-    padding-bottom: 2.2rem;
-    padding-left: 2.5rem;
+    border-style: solid;
+    padding-top: 1.6rem;
+    padding-bottom: 1.8rem;
+    border-right-width: 7rem;
+    border-left-width: 2.5rem;
     border-color: transparent;
     box-sizing: border-box;
     overflow: hidden;
@@ -132,6 +184,7 @@ $: {
 
   #job-input:empty:before {
     content: "Paste Job Link Here";
+    display: inline-block;
     color: #808080;
   }
   

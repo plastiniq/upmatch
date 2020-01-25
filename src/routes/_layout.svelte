@@ -14,7 +14,9 @@
 				me.set(profileJSON.profile)
 			} else {
 				me.set(null)
-				this.redirect(302, '/login')
+				if (page.path !== '/') {
+					this.redirect(302, '/')
+				}
 			}
 		}
 	}
