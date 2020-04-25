@@ -10,40 +10,39 @@ if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config()
 }
 
-const SESSION = require('express-session')
-let RedisStore = require('connect-redis')(SESSION)
-let redisClient = redis.createClient(process.env.REDIS_URL)
-
-const APP = express()
-
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
+const session = require('express-session')
+var sessionStore = null
 
-const OAUTH = new UpworkOAuth(process.env.UPWORK_KEY, process.env.UPWORK_SECRET)
+if (!dev) {
+	let RedisStore = require('connect-redis')(session)
+	let redisClient = redis.createClient(process.env.REDIS_URL)
+	sessionStore = new RedisStore({ client: redisClient }) 
+}
 
-APP.use(express.json())
-APP.use(express.urlencoded({ extended: true }))
-APP.use(nocache())
+const app = express()
+const oauth = new UpworkOAuth(process.env.UPWORK_KEY, process.env.UPWORK_SECRET)
 
-APP.listen(PORT, err => {
-	if (err) console.log('error', err);
-})
-
-APP.use(SESSION({
-	secret: process.env.SESSION_SECRET,
-	store: new RedisStore({ client: redisClient }),
-  resave: false,
-  saveUninitialized: true,
-  cookie: {}
-}))
-
-APP.use(function(req, res, next) {
-	req.oauth = OAUTH
-	next()
-})
-
-APP.use(
+app.use(
+	express.json(),
+	express.urlencoded({ extended: true }),
+	nocache(),
+	session({
+		secret: process.env.SESSION_SECRET,
+		store: sessionStore,
+		resave: false,
+		saveUninitialized: true,
+		cookie: {}
+	}),
+	function(req, res, next) {
+		req.oauth = oauth
+		next()
+	},
 	compression({ threshold: 0 }),
 	sirv('static', { dev }),
 	sapper.middleware()
 )
+.listen(PORT, err => {
+	if (err) console.log('error', err);
+})

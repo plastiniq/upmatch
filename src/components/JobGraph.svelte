@@ -1,7 +1,7 @@
 <script>
   import updateGraph from './graphs/match.js'
   import { tweened } from 'svelte/motion'
-  import Comparator from './comparison/comparator.js'
+  import Comparator from 'cast-comparison'
 	import castConfig from './comparison/config.js'
   import castHandler from './comparison/handler.js'
   

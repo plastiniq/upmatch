@@ -1,4 +1,4 @@
-import Comparator from './comparator.js'
+import Comparator from 'cast-comparison'
 
 export default {
   'Location': [ 0 ],

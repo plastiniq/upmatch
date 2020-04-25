@@ -78,10 +78,6 @@
       margin: 0;
       margin-right: 3rem;
     }
-
-    .grid-cell {
-
-    }
   }
 
   @media (max-width: 650px) {
