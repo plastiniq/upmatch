@@ -81,7 +81,7 @@
 		})
 		.catch(error => {
 			if (error.status === 404) {
-				freelancersError = 'This client does not have hiring history for analysis.'
+				freelancersError = 'No hiring history for analysis.'
 			} else {
 				freelancersError = error.statusText
 			}

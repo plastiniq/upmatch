@@ -1,12 +1,12 @@
 
 <script>
-import { tick } from 'svelte';
-import { setParentSelection, getParentSelection } from './helpers/text.js';
-import { createEventDispatcher } from 'svelte';
+import { tick } from 'svelte'
+import { setParentSelection, getParentSelection } from './helpers/text.js'
+import { createEventDispatcher } from 'svelte'
 
-export let value = '';
+export let value = ''
 
-const dispatch = createEventDispatcher();
+const dispatch = createEventDispatcher()
 let jobKey
 let jobInput
 let textContent
@@ -38,6 +38,10 @@ function focusHandler () {
   selectAll()
 }
 
+function windowFocusHandler () {
+  selectAll()
+}
+
 function mouseUpHandler (e) {
   justFocused && e.preventDefault()
   justFocused = false
@@ -56,6 +60,8 @@ $: {
 }
 
 </script>
+
+<svelte:window on:focus={windowFocusHandler}/>
 
 <div class="search-input" on:dblclick={selectAll}>
   <div 
