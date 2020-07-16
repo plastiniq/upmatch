@@ -28,26 +28,26 @@
     "redis": "^2.8.0",
     "regression": "^2.0.1",
     "session-file-store": "^1.4.0",
-    "sirv": "^0.4.0",
+    "sirv": "^0.4.6",
     "timeago.js": "^4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.10.5",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.9.0",
-    "@babel/preset-env": "^7.9.5",
-    "@babel/runtime": "^7.9.2",
-    "autoprefixer": "^9.7.6",
-    "node-sass": "^4.14.0",
+    "@babel/plugin-transform-runtime": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/runtime": "^7.10.5",
+    "autoprefixer": "^9.8.5",
+    "node-sass": "^4.14.1",
     "npm-run-all": "^4.1.5",
     "rollup": "^1.32.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.0.0",
-    "rollup-plugin-svelte": "^5.2.1",
+    "rollup-plugin-svelte": "^5.2.3",
     "rollup-plugin-terser": "^4.0.4",
-    "sapper": "^0.27.12",
-    "svelte": "^3.21.0"
+    "sapper": "^0.27.16",
+    "svelte": "^3.24.0"
   }
 }

@@ -3,7 +3,6 @@ import express from 'express'
 import compression from 'compression'
 import * as sapper from '@sapper/server'
 import UpworkOAuth from '@upwork/upwork.js'
-import redis from 'redis'
 import nocache from 'nocache'
 
 if (process.env.NODE_ENV !== 'production') {
@@ -17,7 +16,7 @@ var sessionStore = null
 
 if (!dev) {
 	let RedisStore = require('connect-redis')(session)
-	let redisClient = redis.createClient(process.env.REDIS_URL)
+	let redisClient = require('redis').createClient(process.env.REDIS_URL);
 	sessionStore = new RedisStore({ client: redisClient }) 
 }
 
