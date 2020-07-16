@@ -1,25 +1,25 @@
 # Upmatch
-Application that determines how much the Upwork freelancer profile matches the employer's preferences.
+Application to see how your Upwork profile matches the customer's preferences before applying for a job.
 
 ## Demo: https://upmatch.me
 
 ![Screenshot](https://github.com/plastiniq/upmatch/blob/master/screenshot.png)
 
-## Local installation
+## Local Installation
 
 ### 1. Get API key
 To run locally on your computer, you need an Upwork API key. You can request it here: https://www.upwork.com/services/api/apply
 
 ### 2. [Download](https://github.com/plastiniq/upmatch/archive/master.zip) files or clone the repository to your local machine
 
-### 3. Create an .env File in the Root Folder With Files and Fill in the API Key Values
+### 3. Create an .env file in the root project folder and fill in the API key values
 ```
 SESSION_SECRET = "xxxxxxxxxxxx"
 UPWORK_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 UPWORK_SECRET = "xxxxxxxxxxxxxxxx"
 ```
 
-### 4. Run the Project
+### 4. Run the project
 ```bash
 cd upmatch-master
 npm install # or yarn
