@@ -8,7 +8,7 @@
   </h2>
   <div>
     <a class="login-button" href="/login">
-      Login to Upwork
+      Login with Upwork
     </a>
   </div>
 </div>
