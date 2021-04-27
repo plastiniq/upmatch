@@ -25,7 +25,7 @@
     "node-fetch": "^2.6.0",
     "oauth": "^0.9.15",
     "polka": "next",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "regression": "^2.0.1",
     "session-file-store": "^1.4.0",
     "sirv": "^0.4.6",
