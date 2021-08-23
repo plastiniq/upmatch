@@ -1,7 +1,7 @@
 # Upmatch
 Application to see how your Upwork profile matches the customer's preferences before applying for a job.
 
-## Demo: https://upmatch.me
+## Demo: https://upmatch.herokuapp.com/
 
 ![Screenshot](https://github.com/plastiniq/upmatch/blob/master/screenshot.png)
 
