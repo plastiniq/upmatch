@@ -22,7 +22,7 @@
     "express-session": "^1.17.1",
     "memorystore": "^1.6.2",
     "nocache": "^2.1.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "oauth": "^0.9.15",
     "polka": "next",
     "redis": "^2.8.0",
