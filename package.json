@@ -16,7 +16,7 @@
     "cast-comparison": "1.0.5",
     "compression": "^1.7.1",
     "connect-redis": "^4.0.4",
-    "d3": "^5.16.0",
+    "d3": "^7.6.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
